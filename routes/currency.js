@@ -18,12 +18,12 @@ router.get(
   ],
   async (req, res) => {
     const errors = validationResult(req)
+    const { baseCurrency, targetCurrency, maxWaitingTime } = req.body
 
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
 
-    const { baseCurrency, targetCurrency, maxWaitingTime } = req.body
     const endDate = moment(new Date()).format('YYYY-MM-DD')
     const startDate = moment()
       .subtract(maxWaitingTime, 'weeks')
