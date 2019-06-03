@@ -6,6 +6,29 @@
   box-sizing: border-box;
 }
 
+.chart {
+  z-index: 3 !important;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  border-radius: 0.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+}
+
+.chart h1 {
+  color: #141414 !important;
+  text-align: center;
+  margin-bottom: 0.75rem;
+  margin-top: -1rem;
+  font-size: 3rem;
+}
+
 body {
   font-family: 'Montserrat', sans-serif;
   overflow-x: hidden;
@@ -15,8 +38,17 @@ body {
   width: 25rem;
 }
 
+select {
+  z-index: 2;
+  margin-left: 1rem;
+  width: 70%;
+  font-size: 1rem;
+  border-radius: 0.2rem;
+}
+
 .input-group {
   margin: 1rem;
+  display: flex;
 }
 .formContainer::before {
   content: '';
@@ -63,9 +95,24 @@ input[type='submit'] {
   background: chartreuse;
   transition: 0.4s background-color ease-in-out;
   cursor: pointer;
+  width: 100%;
 }
 input[type='submit']:hover {
   background: #7fdd00;
+}
+
+@media (max-width: 1100px) {
+  .grid > div:nth-child(1) {
+    justify-content: flex-start !important;
+    padding-top: 3rem;
+  }
+  .formContainer {
+    height: 40vh;
+    text-align: center;
+  }
+  .chart {
+    height: 60vh;
+  }
 }
 
 @media (max-width: 600px) {
