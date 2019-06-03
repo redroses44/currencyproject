@@ -2,6 +2,7 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import './App.css'
 import LineChart from './components/LineChart'
+import Spinner from './components/Spinner'
 
 const App = () => {
   useEffect(() => {
@@ -13,6 +14,10 @@ const App = () => {
   }, [])
 
   const [chartData, setChartData] = useState({})
+  const [bestTime, setBestTime] = useState(null)
+  const [bestMoney, setBestMoney] = useState(null)
+  const [currencies, setCurrencies] = useState([])
+  const [loading, setLoading] = useState(false)
 
   const [formData, setFormData] = useState({
     baseCurrency: 'AUD',
@@ -21,17 +26,15 @@ const App = () => {
     maxWaitingTime: ''
   })
 
-  const [currencies, setCurrencies] = useState([])
-  const [loading, setLoading] = useState(true)
-
   const { baseCurrency, targetCurrency, amount, maxWaitingTime } = formData
 
-  const onChange = e => {
+  const onChange = async e => {
     e.preventDefault()
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
   const onSubmit = async e => {
+    setLoading(false)
     e.preventDefault()
     const curObj = {
       baseCurrency,
@@ -41,6 +44,11 @@ const App = () => {
     try {
       const response = await axios.post('/currency', curObj)
       const labels = Object.values(response.data.rates)
+      Math.max.apply(
+        null,
+        labels.map(label => setBestMoney(Object.values(label)))
+      )
+
       setChartData({
         labels: Object.keys(response.data.rates),
         datasets: [
@@ -59,7 +67,7 @@ const App = () => {
           }
         ]
       })
-      setLoading(false)
+      setLoading(true)
     } catch (error) {
       console.log(error.message)
     }
@@ -115,14 +123,18 @@ const App = () => {
           </div>
         </form>
       </div>
-      {!loading && (
+      {loading ? (
         <LineChart
-          loading={loading}
           baseCurrency={baseCurrency}
           targetCurrency={targetCurrency}
           options={{}}
           chartData={chartData}
+          bestMoney={bestMoney}
+          bestTime={bestTime}
+          amount={amount}
         />
+      ) : (
+        <Spinner />
       )}
     </div>
   )
