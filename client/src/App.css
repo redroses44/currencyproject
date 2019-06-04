@@ -161,8 +161,8 @@ input[type='submit']:hover {
     height: 60vh;
   }
   .loader {
-    align-items: flex-end;
-    margin-top: 50%;
+    align-items: center;
+    margin-top: 25%;
   }
 }
 

@@ -12,8 +12,8 @@ const App = () => {
   const [loading, setLoading] = useState(false)
 
   const [formData, setFormData] = useState({
-    baseCurrency: 'AUD',
-    targetCurrency: 'AUD',
+    baseCurrency: 'EUR',
+    targetCurrency: 'USD',
     amount: '',
     maxWaitingTime: ''
   })
@@ -38,12 +38,14 @@ const App = () => {
       try {
         const response = await axios.post('/currency', curObj)
         const values = []
-        const labels = Object.values(response.data.rates)
-        labels.sort().map(label => values.push(label[targetCurrency]))
+        const labels = Object.values(response.data.ordered)
+        labels.map(label => values.push(label[targetCurrency]))
         setBestMoney(Math.max.apply(null, values))
 
+        //const avg = values.reduce((acc, cur) => acc + cur) / values.length
+
         setChartData({
-          labels: Object.keys(response.data.rates).sort(),
+          labels: Object.keys(response.data.ordered),
           datasets: [
             {
               label: 'Currency value',
@@ -91,6 +93,7 @@ const App = () => {
               onChange={onChange}
               value={baseCurrency}
             >
+              <option>EUR</option>
               {currencies.sort().map(currency => (
                 <option key={currency} value={currency}>
                   {currency}
@@ -111,6 +114,7 @@ const App = () => {
               onChange={onChange}
               value={targetCurrency}
             >
+              <option>EUR</option>
               {currencies.sort().map(currency => (
                 <option key={currency} value={currency}>
                   {currency}
