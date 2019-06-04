@@ -5,14 +5,6 @@ import LineChart from './components/LineChart'
 import Spinner from './components/Spinner'
 
 const App = () => {
-  useEffect(() => {
-    const getAllCurrencies = async () => {
-      const response = await axios.get('https://api.exchangeratesapi.io/latest')
-      setCurrencies(Object.keys(response.data.rates))
-    }
-    getAllCurrencies()
-  }, [])
-
   const [chartData, setChartData] = useState({})
   const [bestTime, setBestTime] = useState(null)
   const [bestMoney, setBestMoney] = useState(null)
@@ -25,59 +17,67 @@ const App = () => {
     amount: '',
     maxWaitingTime: ''
   })
-
   const { baseCurrency, targetCurrency, amount, maxWaitingTime } = formData
+
+  useEffect(() => {
+    const getAllCurrencies = async () => {
+      const response = await axios.get('https://api.exchangeratesapi.io/latest')
+      setCurrencies(Object.keys(response.data.rates))
+    }
+    getAllCurrencies()
+  }, [])
+
+  useEffect(() => {
+    const getChart = async () => {
+      setLoading(false)
+      const curObj = {
+        baseCurrency,
+        targetCurrency,
+        maxWaitingTime
+      }
+      try {
+        const response = await axios.post('/currency', curObj)
+        const values = []
+        const labels = Object.values(response.data.rates)
+        labels.sort().map(label => values.push(label[targetCurrency]))
+        setBestMoney(Math.max.apply(null, values))
+
+        setChartData({
+          labels: Object.keys(response.data.rates).sort(),
+          datasets: [
+            {
+              label: 'Currency value',
+              data: labels.map(label => Object.values(label)),
+              backgroundColor: [
+                'rgba(255, 255, 255, 1)',
+                'rgba(54, 162, 235, 0.6)',
+                'rgba(255, 206, 86, 0.6)',
+                'rgba(75, 192, 192, 0.6)',
+                'rgba(153, 102, 255, 0.6)',
+                'rgba(255, 159, 64, 0.6)',
+                'rgba(255, 99, 132, 0.6)'
+              ]
+            }
+          ]
+        })
+        setLoading(true)
+      } catch (error) {
+        console.log(error.message)
+      }
+    }
+    getChart()
+  }, [targetCurrency, baseCurrency, maxWaitingTime])
 
   const onChange = async e => {
     e.preventDefault()
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const onSubmit = async e => {
-    setLoading(false)
-    e.preventDefault()
-    const curObj = {
-      baseCurrency,
-      targetCurrency,
-      maxWaitingTime
-    }
-    try {
-      const response = await axios.post('/currency', curObj)
-      const labels = Object.values(response.data.rates)
-      Math.max.apply(
-        null,
-        labels.map(label => setBestMoney(Object.values(label)))
-      )
-
-      setChartData({
-        labels: Object.keys(response.data.rates),
-        datasets: [
-          {
-            label: 'Currency value',
-            data: labels.map(label => Object.values(label)),
-            backgroundColor: [
-              'rgba(255, 255, 255, 1)',
-              'rgba(54, 162, 235, 0.6)',
-              'rgba(255, 206, 86, 0.6)',
-              'rgba(75, 192, 192, 0.6)',
-              'rgba(153, 102, 255, 0.6)',
-              'rgba(255, 159, 64, 0.6)',
-              'rgba(255, 99, 132, 0.6)'
-            ]
-          }
-        ]
-      })
-      setLoading(true)
-    } catch (error) {
-      console.log(error.message)
-    }
-  }
-
   return (
     <div className="grid">
       <div className="formContainer">
         <h1>Currency Project</h1>
-        <form onSubmit={onSubmit} className="form">
+        <form className="form">
           <div className="input-group">
             <input
               onChange={onChange}
@@ -118,9 +118,6 @@ const App = () => {
               ))}
             </select>
           </div>
-          <div className="input-group">
-            <input type="submit" value="Submit" />
-          </div>
         </form>
       </div>
       {loading ? (
@@ -133,8 +130,12 @@ const App = () => {
           bestTime={bestTime}
           amount={amount}
         />
-      ) : (
+      ) : maxWaitingTime ? (
         <Spinner />
+      ) : (
+        <div className="flex">
+          <h1 className="warning">Max Waiting Time Cannot Be Empty</h1>
+        </div>
       )}
     </div>
   )

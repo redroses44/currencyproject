@@ -12,7 +12,7 @@ const LineChart = ({
 }) => {
   return (
     <div className="chart">
-      <h1>{`From ${baseCurrency} to ${targetCurrency}`}</h1>
+      {/* <h1>{`From ${baseCurrency} to ${targetCurrency}`}</h1> */}
       <h3>{`Best time to exchange is on ${bestTime} and you would get ${(
         amount * bestMoney
       ).toFixed(2)} ${targetCurrency}`}</h3>

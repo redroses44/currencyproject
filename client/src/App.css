@@ -6,6 +6,17 @@
   box-sizing: border-box;
 }
 
+.warning {
+  text-align: center;
+  color: #141414;
+}
+
+.flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .loader {
   display: flex;
   justify-content: center;
